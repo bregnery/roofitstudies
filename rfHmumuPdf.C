@@ -29,16 +29,16 @@ void rfHmumuPdf(){
 	RooRealVar sigma("sigma","width of Breit Wigner",2.4952);
 	
 	// Construct a nonrealitivistic Breit Wigner
-	RooGenericPdf bWpdf("bWpdf","bWpdf","(sigma/((x-mean)*(x-mean)+(sigma/2)*(sigma/2)))",RooArgSet(x,mean,sigma));
+	RooGenericPdf bWpdf("bWpdf","bWpdf","(@2/((@0-@1)*(@0-@1)+(@2/2)*(@2/2)))",RooArgList(x,mean,sigma));
 	
 	// Construct a realitivistic Breit Wigner
-	RooGenericPdf relBW("relBW","relBW","((x*x)/((x*x-(mean*mean))*(x*x-(mean*mean))+(mean*mean*sigma*sigma)))",RooArgSet(x,mean,sigma));
+	RooGenericPdf relBW("relBW","relBW","((@0*@0)/((@0*@0-(@1*@1))*(@0*@0-(@1*@1))+(@1*@1*@2*@2)))",RooArgList(x,mean,sigma));
 
 	// Construct a Z Breit Wigner
-	RooGenericPdf zBWpdf("zBWpdf","zBWpdf","((x*x)/((x*x-(mean*mean))*(x*x-(mean*mean))+((x*x*x*x*sigma*sigma)/(mean*mean))))",RooArgSet(x,mean,sigma));
+	RooGenericPdf zBWpdf("zBWpdf","zBWpdf","((@0*@0)/((@0*@0-(@1*@1))*(@0*@0-(@1*@1))+((@0*@0*@0*@0*@2*@2)/(@1*@1))))",RooArgList(x,mean,sigma));
 	
 	// Create a Photon Pdf
-	RooGenericPdf phoPdf("phoPdf","phoPdf","(1/(x*x))",RooArgSet(x));
+	RooGenericPdf phoPdf("phoPdf","phoPdf","(1/(@0*@0))",RooArgList(x));
 	
 	// Add the Photon Term to the other Pdfs
 	RooAddPdf phoBW("phoBW","Photon term added to a Breit Wigner",phoPdf,bWpdf,coef);

@@ -20,12 +20,16 @@
 using namespace RooFit;
 
 void rfHmumuPdf(){
+	// Open the TFile containing the data
+	TFile f = TFile("DYJetsToLL_8TeV.root");
+	TH1F* hist = (TH1F*) f.Get("mDiMu");
+	
 	// Declare Addition Coefficent
-	RooRealVar coefPho("coefPho","coefficent for Addition",0.88,0,1);
-	RooRealVar coefBW("coefBW","coefficent for BW addition",0.11,0,1);	
+	RooRealVar coefPho("coefPho","coefficent for Addition",0.75,0,1);
+	RooRealVar coefBW("coefBW","coefficent for BW addition",0.12,0,1);	
 
 	// Declare observable
-	RooRealVar x("x","x",110,160);
+	RooRealVar x("x","x",60,160);
 	//x.setRange("zPeak",90,92);
 
 	// Declare Parameters for Breit Wigner
@@ -46,7 +50,7 @@ void rfHmumuPdf(){
 		// Construct a realitivistic Breit Wigner
 		RooGenericPdf relBW("relBW","relBW","((@0*@0)/((@0*@0-(@1*@1))*(@0*@0-(@1*@1))+(@1*@1*@2*@2)))",RooArgList(x,mean,sigma));
 
-		// Construct a Z Breit Wigner
+``		// Construct a Z Breit Wigner
 		RooGenericPdf zBWpdf("zBWpdf","zBWpdf","((@0*@0)/((@0*@0-(@1*@1))*(@0*@0-(@1*@1))+((@0*@0*@0*@0*@2*@2)/(@1*@1))))",RooArgList(x,mean,sigma));
 	
 		// Create a Photon Pdf
@@ -95,29 +99,35 @@ void rfHmumuPdf(){
 	
 	// Convolute Pdfs with Gaussian
 	x.setBins(1000,"cache");
-	RooFFTConvPdf phoBWxg("phoBWxg","phoBWin (x) gaus",x,phoBWin,gaus);
+	RooFFTConvPdf phoBWxg("phoBWxg","phoBWin (x) gaus",x,phoBW,gaus);
 	phoBWxg.setBufferFraction(0.5);
-	RooFFTConvPdf phoRelBWxg("phoRelBWxg","phoRelBWin (x) gaus",x,phoRelBWin,gaus);
+	RooFFTConvPdf phoRelBWxg("phoRelBWxg","phoRelBWin (x) gaus",x,phoRelBW,gaus);
 	phoRelBWxg.setBufferFraction(0.5);
-	RooFFTConvPdf phoZBWxg("phoZBWxg","phoZBWin (x) gaus",x,phoZBWin,gaus);
+	RooFFTConvPdf phoZBWxg("phoZBWxg","phoZBWin (x) gaus",x,phoZBW,gaus);
 	phoZBWxg.setBufferFraction(0.5);
 	
 	// Test by generating a data set
-	RooDataSet* data = phoBWxg.generate(x,10000);
+	//RooDataSet* data = phoBWxg.generate(x,10000);
+	RooDataHist* data = new RooDataHist("data","data",RooArgList(x),hist);
+	//f.Print();
+	//hist.Print();
 	
 	// Plot and draw on a canvas
 	RooPlot* xframe = x.frame(Title("Breit Wigner Plots"));
-	//data->plotOn(xframe);
+	data->plotOn(xframe);
 	//exPhoBW.plotOn(xframe,Range("zPeak"));
 	//exPhoRBW.plotOn(xframe,LineColor(kGreen),LineStyle(kDashed));
 	//exPhoZBW.plotOn(xframe,LineColor(kOrange),LineStyle(kDashed));
-	phoBW.plotOn(xframe,LineColor(kRed));
-	phoRelBW.plotOn(xframe,LineColor(kYellow),LineStyle(kDashed));
-	phoZBW.plotOn(xframe,LineColor(kBlack),LineStyle(kDashed));
+	//phoBWin.plotOn(xframe,LineColor(kRed));
+	//phoRelBWin.plotOn(xframe,LineColor(kYellow),LineStyle(kDashed));
+	//phoZBWin.plotOn(xframe,LineColor(kBlack),LineStyle(kDashed));
+	//phoBW.plotOn(xframe,LineColor(kRed));
+	//phoRelBW.plotOn(xframe,LineColor(kYellow),LineStyle(kDashed));
+	//phoZBW.plotOn(xframe,LineColor(kBlack),LineStyle(kDashed));
 	
-	phoBWin.plotOn(xframe);
-	phoRelBWin.plotOn(xframe,LineColor(kGreen),LineStyle(kDashed));
-	phoZBWin.plotOn(xframe,LineColor(kOrange),LineStyle(kDashed));
+	phoBWxg.plotOn(xframe);
+	phoRelBWxg.plotOn(xframe,LineColor(kGreen),LineStyle(kDashed));
+	phoZBWxg.plotOn(xframe,LineColor(kOrange),LineStyle(kDashed));
 	TCanvas* c = new TCanvas("rfHmumuPdf","rfHmumuPdf",800,400);
 	xframe->Draw();
 }

@@ -19,16 +19,18 @@
 
 using namespace RooFit;
 
+// Open the TFile containing the data samples
+TFile f = TFile("DYJetsToLL_8TeV.root");
+TH1F* hist = (TH1F*) f.Get("mDiMu");
+
+
 void rfHmumuPdf(){
-	// Open the TFile containing the data
-	TFile f = TFile("DYJetsToLL_8TeV.root");
-	TH1F* hist = (TH1F*) f.Get("mDiMu");
 	
 	// Declare Addition Coefficent
 	RooRealVar coefPho("coefPho","coefficent for Addition",0.75,0,1);
 	RooRealVar coefBW("coefBW","coefficent for BW addition",0.12,0,1);	
 
-	// Declare observable
+	// Declare an observable variable
 	RooRealVar x("x","x",60,160);
 	//x.setRange("zPeak",90,92);
 
@@ -108,13 +110,16 @@ void rfHmumuPdf(){
 	
 	// Test by generating a data set
 	//RooDataSet* data = phoBWxg.generate(x,10000);
-	RooDataHist* data = new RooDataHist("data","data",RooArgList(x),hist);
+
+	//Import the contents of TH1F into observable x
+	RooDataHist data = RooDataHist("data","data",x,Import(*hist));
 	//f.Print();
 	//hist.Print();
 	
 	// Plot and draw on a canvas
 	RooPlot* xframe = x.frame(Title("Breit Wigner Plots"));
 	data->plotOn(xframe);
+
 	//exPhoBW.plotOn(xframe,Range("zPeak"));
 	//exPhoRBW.plotOn(xframe,LineColor(kGreen),LineStyle(kDashed));
 	//exPhoZBW.plotOn(xframe,LineColor(kOrange),LineStyle(kDashed));
@@ -125,8 +130,12 @@ void rfHmumuPdf(){
 	//phoRelBW.plotOn(xframe,LineColor(kYellow),LineStyle(kDashed));
 	//phoZBW.plotOn(xframe,LineColor(kBlack),LineStyle(kDashed));
 	
+	//Fit Background data to PDFs
+	//phoBWxg.fitTo(data);
 	phoBWxg.plotOn(xframe);
+	//phoRelBWxg.fitTo(data);
 	phoRelBWxg.plotOn(xframe,LineColor(kGreen),LineStyle(kDashed));
+	//phoZBWxg.fitTo(data);
 	phoZBWxg.plotOn(xframe,LineColor(kOrange),LineStyle(kDashed));
 	TCanvas* c = new TCanvas("rfHmumuPdf","rfHmumuPdf",800,400);
 	xframe->Draw();
